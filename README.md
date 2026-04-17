@@ -14,23 +14,78 @@ The repository supports two deployment modes:
 - `document-service`: file upload, metadata management, and signed download links via MinIO
 - `notification-service`: Kafka consumer that logs notification messages to text files
 
+## Deployed URLs
+
+### Railway API-Only Deployment
+
+- Auth API: `https://auth-api-production-9405.up.railway.app`
+- Data API: `https://data-api-production-7f79.up.railway.app`
+- Document API: `https://document-api-production-1f70.up.railway.app`
+
+### Health Endpoints
+
+- Auth health: `https://auth-api-production-9405.up.railway.app/health`
+- Data health: `https://data-api-production-7f79.up.railway.app/health`
+- Document health: `https://document-api-production-1f70.up.railway.app/health`
+
 ## Setup Instructions
 
 ### Docker + `.env`
 
-1. Copy `.env.example` to `.env`
-2. Review or update the values in `.env`
-3. Start everything with:
+Use this mode if you want the complete local microservices stack with MongoDB, Kafka, MinIO, and the notification worker.
+
+1. Clone the repository
+2. Copy `.env.example` to `.env`
+3. Review or update the values in `.env`
+4. Make sure Docker Desktop is running
+5. Start everything with:
 
 ```bash
 docker compose up --build
 ```
 
-4. Stop everything with:
+6. Stop everything with:
 
 ```bash
 docker compose down
 ```
+
+### Local Services Started By Docker Compose
+
+- `auth-service` on port `3001`
+- `data-access-service` on port `3002`
+- `document-service` on port `3003`
+- `notification-service` on port `3004`
+- `mongo` on port `27017`
+- `kafka` on port `9092`
+- `minio` on port `9000`
+- `minio console` on port `9001`
+
+### Local Development Notes
+
+- The full local setup uses `Kafka` and `MinIO`
+- The hosted Railway deployment does not use Kafka or MinIO
+- For local testing, the default `.env.example` is already aligned with `docker-compose.yml`
+
+### Hosted API-Only Setup
+
+Use this mode if you want the lighter hosted version with only the public HTTP APIs.
+
+Requirements:
+
+- MongoDB Atlas cluster
+- one shared `JWT_SECRET`
+- three database URIs:
+  - `auth_db`
+  - `passport_db`
+  - `document_db`
+
+Hosted mode behavior:
+
+- `KAFKA_DISABLED=true`
+- `STORAGE_PROVIDER=mongo`
+- documents are stored in MongoDB instead of MinIO
+- notifications are mocked through logs rather than a separate worker service
 
 ### Required Environment Variables
 
@@ -68,6 +123,10 @@ The data-access and document services validate bearer tokens by calling `POST /a
 
 Base path: `/api/auth`
 
+Railway base URL:
+
+`https://auth-api-production-9405.up.railway.app/api/auth`
+
 #### Register
 
 `POST /api/auth/register`
@@ -100,6 +159,10 @@ Authorization: Bearer <token>
 ### Battery Passport Service
 
 Base path: `/api/passports`
+
+Railway base URL:
+
+`https://data-api-production-7f79.up.railway.app/api/passports`
 
 #### Create Passport
 
@@ -171,6 +234,10 @@ Admin only.
 ### Document Service
 
 Base path: `/api/documents`
+
+Railway base URL:
+
+`https://document-api-production-1f70.up.railway.app/api/documents`
 
 #### Upload File
 
