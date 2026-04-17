@@ -16,7 +16,7 @@ The repository supports two deployment modes:
 
 ## Deployed URLs
 
-### Railway API-Only Deployment
+### Railway API Deployment
 
 - Auth API: `https://auth-api-production-9405.up.railway.app`
 - Data API: `https://data-api-production-7f79.up.railway.app`
@@ -316,59 +316,3 @@ The data-access service publishes JSON messages in this shape:
 }
 ```
 
-### Consumer Behavior
-
-The notification service subscribes to `passport-events`, filters `passport.*` events, and writes notification output to text files in the configured logs directory.
-
-When `KAFKA_DISABLED=true`, the data-access service logs the same event payload locally instead of publishing to Kafka. This is the behavior used by the free hosted API-only deployment.
-
-## Render Deployment
-
-This repository now includes a [`render.yaml`](./render.yaml) Blueprint for a Render-based deployment path.
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Akhilesh29/Microservices-Backend-for-Battery-Passport-Platform)
-
-Important notes:
-
-- Render is a better fit than Vercel for this project because it supports long-running containerized services.
-- The Blueprint provisions custom MongoDB, Kafka, and MinIO services plus the four Node services.
-- Persistent disks on Render require paid service plans.
-- Render Blueprint files do not support variable interpolation, so the application also supports split host and port environment variables for internal service discovery.
-
-## Render Free API-Only Deployment
-
-This repository also includes [`render-free.yaml`](./render-free.yaml) for a free-tier hosted demo deployment that exposes only the HTTP APIs:
-
-- `battery-passport-auth-api`
-- `battery-passport-data-api`
-- `battery-passport-document-api`
-
-This mode is designed for free hosting and makes these tradeoffs:
-
-- Kafka is disabled with `KAFKA_DISABLED=true`
-- Notifications are mocked by logging events in the data-access service
-- Document files are stored directly in MongoDB with `STORAGE_PROVIDER=mongo`
-- The standalone notification worker is not deployed
-- MinIO is not deployed
-
-### What you need for the free hosted mode
-
-- A free MongoDB Atlas cluster
-- Three MongoDB connection strings, one per service database:
-  - auth service: `.../auth_db`
-  - passport service: `.../passport_db`
-  - document service: `.../document_db`
-- A shared `JWT_SECRET`
-
-### Deploying the free hosted mode on Render
-
-1. In Render, create a new Blueprint deployment from this repo.
-2. Select `render-free.yaml`.
-3. When prompted, provide:
-   - `JWT_SECRET`
-   - `MONGO_URI` for `battery-passport-auth-api`
-   - `MONGO_URI` for `battery-passport-data-api`
-   - `MONGO_URI` for `battery-passport-document-api`
-4. Finish the Blueprint creation flow.
-
-This free mode is the simplest way to host the APIs publicly without paid private services, workers, Kafka, or MinIO.
