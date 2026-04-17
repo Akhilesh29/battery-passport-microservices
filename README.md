@@ -2,10 +2,6 @@
 
 This repository contains a simplified microservices-based backend system for a digital battery passport platform. The stack includes Node.js, Express, MongoDB, Kafka, JWT authentication, and MinIO as an S3-compatible object store.
 
-The repository supports two deployment modes:
-
-- `Full local stack`: Docker Compose with MongoDB, Kafka, MinIO, and all four services
-- `Hosted API-only demo`: three web APIs for free-tier hosting, with Mongo-backed document storage and mocked event handling instead of Kafka
 
 ## Service Descriptions
 
